@@ -3,7 +3,11 @@
 title: "Assignment-2"
 author: "Eric Ohemeng"
 date: "`r Sys.Date()`"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+Github: github.com/Erico250/Assignment2
 ---
 
 You may work in pairs or individually for this assignment. Make sure you join a group in Canvas if you are working in pairs. Turn in this assignment as an HTML or PDF file to ELMS. Make sure to include the R Markdown or Quarto file that was used to generate it.
@@ -84,7 +88,8 @@ res2 <- gtrends(c("mask", "quarantine"),
                low_search_volume = TRUE)
 plot(res2)
 ```
-## Find the mean, median and variance of the search hits for the keywords
+
+- Find the mean, median and variance of the search hits for the keywords
 ```{r}
 
 hits_data2<- res2$interest_over_time
@@ -98,7 +103,7 @@ summary(hits_data2$hits[hits_data2$keyword=="quarantine"])
 var(hits_data2$hits[hits_data2$keyword=="mask"])
 var(hits_data2$hits[hits_data2$keyword=="quarantine"], na.rm = TRUE)
 ```
-*The mean and median of keyword "mask"is 37.37 and 31 respectively while that of the "quarantine" is 10 and 8. The variance for the two keywords;mask and quarantine are 509 and 66.04 respectively
+*The mean and median of keyword "mask"is 37.37 and 31 respectively while that of the "quarantine" is 10 and 8. The variance for the two keywords;mask and quarantine are 509 and 66 respectively
 
 ```{r}
 res2$interest_by_city
@@ -230,45 +235,7 @@ merged_data %>%
             mean_search_loans = mean(loans))
 
 ```
-
-```{r}
- #relationship between median household income and search popularity
-#scatterplot <- qplot(x = hh_income, y = mean_search_crime + mean_search_loans, data = merged_data)
-scatterplot <- qplot(x = hh_income, y = mean_search_crime, data = merged_data)
-scatterplot
-```
-
-```{r}
-
-# Group by income_diff and calculate the mean search popularity for "crime" and "loans"
-result <- merged_data %>%
-  group_by(income_diff) %>%
-  summarize(mean_search_popularity_crime = mean(crime),
-            mean_search_popularity_loans = mean(loans))
-# Recode the binary_column
-merged_data <- merged_data %>%
-  mutate(income_diff = recode(income_diff, `1` = "Yes", `0` = "No"))
-
-# Print the result
-print(result)
-
-```
+* under the income_diff columm, cities that have above anerage household income is coded as 1, and those below is coded as 0. The mean of crime search  for cities that have an above average median household income is 11.77 while those below is 6.11. The mean search for loans for cities that have an above average median household income is 12.56 and for those that have an below average median household income is 14.67 
 
 
-```{r}
-
-# Scatterplot using qplot for crime
-Scatterplot<-qplot(x = hh_income, y = crime, data = merged_data, color = "red", shape = I(16)) +
-  geom_point(aes(x = hh_income, y = crime, color = "blue", shape = I(17))) +
-  labs(x = "hh_income", 
-       y = "mean_search_popularity_crime",
-       color = "Terms",
-       shape = "Terms",
-       title = "Relationship between Median Income and Google Trends Popularity") +
-  scale_color_manual(values = c("red", "blue"), breaks = c("red", "blue"), labels = c("Crime", "Loans")) +
-  scale_shape_manual(values = c(16, 17), breaks = c(16, 17), labels = c("Crime", "Loans")) +
-  theme_minimal()
-Scatterplot
-
-```
 
