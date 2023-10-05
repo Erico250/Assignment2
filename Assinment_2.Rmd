@@ -3,14 +3,10 @@
 title: "Assignment-2"
 author: "Eric Ohemeng"
 date: "`r Sys.Date()`"
-output:
-  pdf_document: default
-  html_document:
-    df_print: paged
-Github: github.com/Erico250/Assignment2
+output:pdf
 ---
+# Github: github.com/Erico250/Assignment2
 
-You may work in pairs or individually for this assignment. Make sure you join a group in Canvas if you are working in pairs. Turn in this assignment as an HTML or PDF file to ELMS. Make sure to include the R Markdown or Quarto file that was used to generate it.
 
 ```{r}
 #| message = FALSE
@@ -97,7 +93,6 @@ hits_data2$hits <- as.numeric(hits_data2$hits)
 summary(hits_data2$hits[hits_data2$keyword=="mask"])
 summary(hits_data2$hits[hits_data2$keyword=="quarantine"])
 ```
-*  
 
 ```{r}
 var(hits_data2$hits[hits_data2$keyword=="mask"])
@@ -211,17 +206,20 @@ acs_il$location <- gsub(" CDP","",acs_il$location)
 missing_cities <- anti_join(acs_il, res_city_w, by = "location")
 nrow(missing_cities)
 
+
+```
+* 1123 cities do not appear in the merged dataset
+
+```{r}
 # Create a new dataset by joining the Google Trends and ACS data for matching cities
-common <- intersect(res_city_w$location,acs_il$location)
+#common <- intersect(res_city_w$location,acs_il$location)
 
 merged_data <- inner_join(res_city_w, acs_il, by = "location")
-nrow(merged_data)
+
 
 # Compute the mean search popularity for "crime" and "loans" for above and below average median household income
 merged_data <- merged_data %>% 
   mutate(income_diff= ifelse(hh_income>mean(hh_income,na.rm=TRUE), 1, 0))
-
-
 
 head(merged_data)
 
@@ -235,7 +233,70 @@ merged_data %>%
             mean_search_loans = mean(loans))
 
 ```
-* under the income_diff columm, cities that have above anerage household income is coded as 1, and those below is coded as 0. The mean of crime search  for cities that have an above average median household income is 11.77 while those below is 6.11. The mean search for loans for cities that have an above average median household income is 12.56 and for those that have an below average median household income is 14.67 
+* Under the income_diff column, cities that have above average household income is coded as 1, and those below is coded as 0. The mean of crime search  for cities that have an above average median household income is 11.77 while those below is 6.11. The mean search for loans for cities that have an above average median household income is 12.56 and for those that have an below average median household income is 14.67 
+
+```{r}
+merged_data[is.na(merged_data)] <- 0
+cor(merged_data$hh_income, merged_data$crime)
+cor(merged_data$hh_income, merged_data$loans)
+```
+* The correlation coefficients indicate that there is a surprisingly weak positive relationship between household income and crime, and a very weak negative relationship between household income and loans
+
+```{r}
+qplot(x = hh_income, y = crime, data = merged_data) +
+  geom_point() +
+  labs(x = "Median Household Income", y = "Crime")
+```
+
+
+
+```{r}
+qplot(x = hh_income, y = loans, data = merged_data) +
+  geom_point() +
+  labs(x = "Median Household Income", y = "Loans")
+
+```
+
+Using Covid data and ACS 
+
+# mean search popularity for "mask" and "quarantine" for above and below average median household income
+
+  
+```{r}
+merged_data2 <- inner_join(res_city_w2, acs_il, by = "location")
+merged_data2 <- merged_data2 %>% 
+  mutate(income_diff= ifelse(hh_income>mean(hh_income,na.rm=TRUE), 1, 0))
+
+head(merged_data2)
+```
+
+```{r}
+merged_data2 %>%
+  group_by(income_diff) %>%
+  summarise(mean_search_mask = mean(mask),
+            mean_search_quarantine = mean(quarantine))
+```
+
+* The mean of mask search  for cities that have an above average median household income is 24 while those below is 56. The mean search for quarantine for cities that have an above average median household income is 12 and for those that have an below average median household income is 32.
+
+```{r}
+merged_data2[is.na(merged_data2)] <- 0
+cor(merged_data2$hh_income, merged_data2$mask)
+cor(merged_data2$hh_income, merged_data2$quarantine)
+```
+* The correlation coefficients indicate that household income has a weak negative relationship with both mask and quarantine. 
+
+```{r}
+qplot(x = hh_income, y = mask, data = merged_data2) +
+  geom_point() +
+  labs(x = "Median Household Income", y = "Mask")
+```
+
+```{r}
+qplot(x = hh_income, y = quarantine, data = merged_data2) +
+  geom_point() +
+  labs(x = "Median Household Income", y = "Quarantine")
+```
 
 
 
